@@ -9,6 +9,7 @@ import { Search, ChevronDown, Plus, MoreVertical } from "lucide-react";
 import { useProducto } from "../hooks/useProducto";
 import { Producto } from '../types/producto.type';
 import { NuevoProductoModal } from "./NuevoProductoModal";
+import { EditarProductoModal } from './EditarProductoModal';
 
 const columns = [
     { name: "PRODUCTO",      uid: "nombreProducto",           sortable: true  },
@@ -34,7 +35,7 @@ const getStockColor = (stock: number): "danger" | "warning" | "success" => {
 
 export function ProductoTable() {
     const [isModalOpen, setIsModalOpen] = React.useState(false);
-    const {productos, isLoading, refetch} = useProducto();
+    const {productos, isLoading, refetch, editarProducto, eliminarProducto} = useProducto();
     const [filterValue, setFilterValue] = React.useState("");
     const [categoriaFilter, setCategoriaFilter] = React.useState<string>("all");
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -43,6 +44,23 @@ export function ProductoTable() {
         column: "nombreProducto",
         direction: "ascending" as "ascending" | "descending",
     });
+    const [deletingId, setDeletingId] = React.useState<number | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+    const [productoSeleccionado, setProductoSeleccionado] = React.useState<Producto | null>(null);
+
+    const handleEditar = (producto: Producto) => {
+        setProductoSeleccionado(producto);
+        setIsEditModalOpen(true);
+    };
+
+    const handleEliminar = async (idProducto: number) => {
+    const confirmar = window.confirm("¿Estás seguro de que deseas eliminar este productp?");
+    if (!confirmar) return;
+
+    setDeletingId(idProducto);
+    await eliminarProducto(idProducto);
+    setDeletingId(null);
+    }
 
     const categorias = React.useMemo(() => {
         const unique = [...new Set(productos.map((p) => p.categoria))];
@@ -129,8 +147,17 @@ export function ProductoTable() {
                         </DropdownTrigger>
                         <DropdownMenu>
                             <DropdownItem key="ver">Ver detalle</DropdownItem>
-                            <DropdownItem key="editar">Editar</DropdownItem>
-                            <DropdownItem key="eliminar" className="text-danger" color="danger">
+                            <DropdownItem 
+                                key="editar"
+                                onPress={() => handleEditar(producto)}>
+                                Editar
+                            </DropdownItem>
+                            <DropdownItem 
+                                key="eliminar" 
+                                className="text-danger" 
+                                color="danger"
+                                onPress={() => handleEliminar(producto.idProducto)}
+                                >
                                 Eliminar
                             </DropdownItem>
                         </DropdownMenu>
@@ -139,7 +166,7 @@ export function ProductoTable() {
             default:
                 return <span>{String(producto[columnKey as keyof Producto])}</span>;
         }
-    }, []);
+    }, [deletingId, handleEditar, eliminarProducto, refetch]);
 
     const topContent = React.useMemo(() => (
         <div className="flex flex-col gap-4">
@@ -300,6 +327,19 @@ export function ProductoTable() {
                 onClose={() => setIsModalOpen(false)}
                 onSuccess={refetch}
             />
+
+            {productoSeleccionado && (
+                <EditarProductoModal
+                    isOpen={isEditModalOpen}
+                    onClose={() => {
+                        setIsEditModalOpen(false);
+                        setProductoSeleccionado(null);
+                    }}
+                    onSuccess={refetch}
+                    producto={productoSeleccionado}
+                    onEditar={editarProducto}
+                />
+            )}
         </div>
     );
 }

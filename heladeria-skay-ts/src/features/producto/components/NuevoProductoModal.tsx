@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from 'zod';
 import { Package, DollarSign, Hash, Calendar, Tag, Image } from "lucide-react";
 import { useCategoria } from "../../categoria/hooks/useCategoria";
-
+import { productoService } from '../services/producto.service';
 
 const schema = z.object({
     nombre: z.string().min(1, "El nombre es obligatorio"),
@@ -40,30 +40,27 @@ export function NuevoProductoModal({ isOpen, onClose, onSuccess }: Props) {
         },
     } = useForm<NuevoProductoForm>({ resolver: zodResolver(schema) })
 
-    const onSubmit = async (data: NuevoProductoForm) => {
-        try {
-            const formData = new FormData();
-            formData.append("nombre", data.nombre);
-            formData.append("precioProducto", data.precioProducto);
-            formData.append("precioCompraProducto", data.precioCompraProducto);
-            formData.append("stockProducto", data.stockProducto);
-            formData.append("fechaVencimiento", data.fechaVencimiento);
-            formData.append("imagen", data.imagen[0]);
-            formData.append("idCategoria", data.idCategoria);
+const onSubmit = async (data: NuevoProductoForm) => {
+    try {
+        const formData = new FormData();
+        formData.append("nombre",               data.nombre);
+        formData.append("precioProducto",       data.precioProducto);
+        formData.append("precioCompraProducto", data.precioCompraProducto);
+        formData.append("stockProducto",        data.stockProducto);
+        formData.append("fechaVencimiento",     data.fechaVencimiento);
+        formData.append("idCategoria",          data.idCategoria);
+        formData.append("imagen",               data.imagen[0]);
 
-
-            const res = await fetch("/api/productos", { method: "POST", body: formData });
-            const result = await res.json();
-
-            if (result.exito) {
-                reset();
-                onSuccess();
-                onClose();
-            }
-        } catch (error) {
-            console.error("Erro al crear un producto.");
+        const result = await productoService.create(formData); // ← service
+        if (result.exito) {
+            reset();
+            onSuccess();
+            onClose();
         }
-    };
+    } catch (error) {
+        console.error("Error al crear producto:", error);
+    }
+};
 
 const handleClose = () => {
     reset();

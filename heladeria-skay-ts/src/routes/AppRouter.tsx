@@ -7,6 +7,7 @@ import { MainLayout } from "../shared/layouts/MainLayout";
 const LoginPage = lazy(() => import('@/features/auth/components/LoginPage'))
 const DashboardPage = lazy(() => import('@/features/dashboard/DashboardPage'))
 const ProductoPage = lazy(() => import('@/features/producto/components/ProductoPage'))
+const CategoriaPage = lazy(() => import('@/features/categoria/components/CategoriaPage'))
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -46,6 +47,14 @@ const router = createBrowserRouter([
             element: (
               <Suspense fallback={<PageLoader />}>
                 <ProductoPage />
+              </Suspense>
+            )
+          },
+          { 
+            path: '/categoria', 
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CategoriaPage />
               </Suspense>
             )
           },

@@ -20,6 +20,10 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
+        configure: (proxy) => {
+                proxy.on('error', (err) => console.log('proxy error', err));
+                proxy.on('proxyReq', (_, req) => console.log('proxying:', req.method, req.url));
+            },
       },
     },
   },

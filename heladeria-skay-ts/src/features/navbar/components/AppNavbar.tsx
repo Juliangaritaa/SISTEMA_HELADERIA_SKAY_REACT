@@ -58,7 +58,7 @@ export function AppNavbar() {
               as="button"
               className="transition-transform"
               color="primary"
-              name={usuario?.nombreUsuario}
+              name={usuario?.nombre}
               size="sm"
             />
           </DropdownTrigger>

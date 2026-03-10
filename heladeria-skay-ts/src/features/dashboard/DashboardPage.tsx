@@ -18,7 +18,7 @@ export default function DashboardPage() {
       >
         <h1 className="font-display text-4xl font-bold text-cocoa-800">
           ¡Bienvenido,{' '}
-          <span className="italic text-gradient">{user?.nombreUsuario ?? 'Usuario'}</span>!
+          <span className="italic text-gradient">{user?.nombre ?? 'Usuario'}</span>!
         </h1>
         <p className="text-cocoa-400 font-body text-sm">
           Has iniciado sesión correctamente en el sistema.
@@ -27,4 +27,4 @@ export default function DashboardPage() {
 
     </div>
     )
-}
+};
