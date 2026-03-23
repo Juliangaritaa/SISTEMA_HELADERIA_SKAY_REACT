@@ -8,6 +8,10 @@ const LoginPage = lazy(() => import('@/features/auth/components/LoginPage'))
 const DashboardPage = lazy(() => import('@/features/dashboard/DashboardPage'))
 const ProductoPage = lazy(() => import('@/features/producto/components/ProductoPage'))
 const CategoriaPage = lazy(() => import('@/features/categoria/components/CategoriaPage'))
+const VentasPage = lazy(() => import('@/features/ventas/components/VentasPage'))
+const CajaPage = lazy(() => import('@/features/caja/components/CajaPage'))
+const ReportePage = lazy(() => import('@/features/reporte/components/ReportePage'))
+const UsuarioPage = lazy(() => import('@/features/usuario/components/UsuarioPage'))
 
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center">
@@ -58,7 +62,38 @@ const router = createBrowserRouter([
               </Suspense>
             )
           },
-          // { path: '/ventas',    element: <VentasPage /> },
+          { 
+            path: '/ventas', 
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <VentasPage />
+              </Suspense>
+            )
+          },
+          { 
+            path: '/caja', 
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <CajaPage />
+              </Suspense>
+            )
+          },
+          { 
+            path: '/reporte', 
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <ReportePage />
+              </Suspense>
+            )
+          },
+          { 
+            path: '/usuarios', 
+            element: (
+              <Suspense fallback={<PageLoader />}>
+                <UsuarioPage />
+              </Suspense>
+            )
+          },
         ],
       },
     ],

@@ -114,12 +114,6 @@ export function CategoriaTable() {
                             </Button>
                         </DropdownTrigger>
                         <DropdownMenu>
-                            <DropdownItem key="ver">Ver detalle</DropdownItem>
-                            <DropdownItem 
-                                key="editar"
-                                onPress={() => handleEditar(categoria)}>
-                                Editar
-                            </DropdownItem>
                             <DropdownItem 
                                 key="eliminar" 
                                 className="text-danger" 

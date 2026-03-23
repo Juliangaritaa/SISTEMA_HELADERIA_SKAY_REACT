@@ -1,13 +1,12 @@
-// src/features/productos/hooks/useProducto.ts
 import { useState, useEffect, useCallback } from 'react';
 import { Producto } from '../types/producto.type';
 import { productoService } from '../services/producto.service';
 import { toast } from "sonner";
 
 export function useProducto() {
-    const [productos,  setProductos]  = useState<Producto[]>([]);
-    const [isLoading,  setIsLoading]  = useState(true);
-    const [error,      setError]      = useState<string | null>(null);
+    const [productos, setProductos] = useState<Producto[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const fetchProductos = useCallback(async () => {
         try {

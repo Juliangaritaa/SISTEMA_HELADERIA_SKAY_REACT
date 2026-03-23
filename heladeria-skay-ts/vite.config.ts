@@ -14,17 +14,8 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-        configure: (proxy) => {
-                proxy.on('error', (err) => console.log('proxy error', err));
-                proxy.on('proxyReq', (_, req) => console.log('proxying:', req.method, req.url));
-            },
-      },
-    },
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
   },
 })

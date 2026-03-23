@@ -5,7 +5,7 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Package, DollarSign, Hash, Calendar, Tag, Image } from "lucide-react";
+import { Package, DollarSign, Hash, Calendar, Tag } from "lucide-react";
 import { useEffect } from "react";
 import { useCategoria } from "../../categoria/hooks/useCategoria";
 import { Producto } from "../types/producto.type";
@@ -17,7 +17,6 @@ const schema = z.object({
     stockProducto: z.string().min(1, "Requerido"),
     fechaVencimiento: z.string().min(1, "Requerido"),
     idCategoria: z.string().min(1, "Selecciona una categoría"),
-    imagen: z.instanceof(FileList).optional(),
 });
 
 type EditarProductoForm = z.infer<typeof schema>;
@@ -67,11 +66,6 @@ export function EditarProductoModal({ isOpen, onClose, onSuccess, producto, onEd
         formData.append("stockProducto", data.stockProducto);
         formData.append("fechaVencimiento", data.fechaVencimiento);
         formData.append("idCategoria", data.idCategoria);
-        formData.append("imagenActual", data.imagen);
-
-        if (data.imagen && data.imagen.length > 0) {
-            formData.append("imagen", data.imagen[0]);
-        }
 
         const ok = await onEditar(formData);
         if (ok) {
@@ -216,22 +210,6 @@ export function EditarProductoModal({ isOpen, onClose, onSuccess, producto, onEd
                                     </Select>
                                 )}
                             />
-
-                            {/* IMAGEN */}
-                            <div className="flex flex-col gap-1">
-                                <label className="text-sky-500 text-small">
-                                    Nueva imagen <span className="text-default-400">(opcional — deja vacío para mantener la actual)</span>
-                                </label>
-                                <div className="flex items-center gap-2 border rounded-xl px-3 py-2 border-sky-200 hover:border-sky-400">
-                                    <Image size={18} className="text-default-400 shrink-0" />
-                                    <input
-                                        {...register("imagen")}
-                                        type="file"
-                                        accept="image/*"
-                                        className="w-full text-small text-default-500 outline-none bg-transparent"
-                                    />
-                                </div>
-                            </div>
 
                         </ModalBody>
 

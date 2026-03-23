@@ -14,7 +14,7 @@ const loginSchema = z.object({
         .email("El correo no es válido"),
     password: z
         .string()
-        .min(8, "La contraseña debe tener al menos 4 caracteres")
+        .min(4, "La contraseña debe tener al menos 4 caracteres")
         .max(100, "La contraseña debe tener como máximo 100 caracteres"),
 });
 

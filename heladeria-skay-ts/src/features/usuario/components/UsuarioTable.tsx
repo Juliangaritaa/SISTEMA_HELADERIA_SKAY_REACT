@@ -6,19 +6,18 @@ import {
     Pagination, Chip, Spinner,
 } from "@nextui-org/react";
 import { Search, ChevronDown, Plus, MoreVertical } from "lucide-react";
-import { useProducto } from "../hooks/useProducto";
-import { Producto } from '../types/producto.type';
-import { NuevoProductoModal } from "./NuevoProductoModal";
-import { EditarProductoModal } from './EditarProductoModal';
+import { useUsuario } from "../hooks/useUsuario";
+import { Usuario } from '../types/usuario.types';
+import { NuevoUsuarioModal } from "./NuevoUsuarioModal";
+import { EditarUsuarioModal } from './EditarUsuarioModal';
 
 const columns = [
-    { name: "PRODUCTO",      uid: "nombreProducto",           sortable: true  },
-    { name: "PRECIO COMPRA", uid: "precioCompraProducto",     sortable: true  },
-    { name: "PRECIO VENTA",  uid: "precioProducto",           sortable: true  },
-    { name: "STOCK",         uid: "stockProducto",            sortable: true  },
-    { name: "VENCIMIENTO",   uid: "fechaVencimientoProducto", sortable: true  },
-    { name: "CATEGORÍA",     uid: "categoria",                sortable: false },
-    { name: "ACCIONES",      uid: "acciones",                 sortable: false },
+    { name: "NOMBRE USUARIO", uid: "nombreUsuario", sortable: true  },
+    { name: "USUARIO", uid: "usuario", sortable: true  },
+    { name: "ROL",  uid: "rol", sortable: true  },
+    { name: "ACTIVO", uid: "activo", sortable: true  },
+    { name: "EMAIL", uid: "email", sortable: true  },
+    { name: "ACCIONES",      uid: "acciones", sortable: false },
 ];
 
 const formatCurrency = (value: number) =>
@@ -33,52 +32,47 @@ const getStockColor = (stock: number): "danger" | "warning" | "success" => {
     return "success";
 };
 
-export function ProductoTable() {
+export function UsuarioTable() {
     const [isModalOpen, setIsModalOpen] = React.useState(false);
-    const {productos, isLoading, refetch, editarProducto, eliminarProducto} = useProducto();
+    const {usuarios, isLoading, refetch, editarUsuario, eliminarUsuario} = useUsuario();
     const [filterValue, setFilterValue] = React.useState("");
-    const [categoriaFilter, setCategoriaFilter] = React.useState<string>("all");
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [page, setPage] = React.useState(1);
     const [sortDescriptor, setSortDescriptor] = React.useState({
-        column: "nombreProducto",
+        column: "nombreUsuario",
         direction: "ascending" as "ascending" | "descending",
     });
     const [deletingId, setDeletingId] = React.useState<number | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
-    const [productoSeleccionado, setProductoSeleccionado] = React.useState<Producto | null>(null);
+    const [usuarioSeleccionado, setUsuarioSeleccionado] = React.useState<Usuario | null>(null);
 
-    const handleEditar = (producto: Producto) => {
-        setProductoSeleccionado(producto);
+    const handleEditar = (usuario: Usuario) => {
+        setUsuarioSeleccionado(usuario);
         setIsEditModalOpen(true);
     };
 
-    const handleEliminar = async (idProducto: number) => {
-    const confirmar = window.confirm("¿Estás seguro de que deseas eliminar este productp?");
+    const handleEliminar = async (idUsuario: number) => {
+    const confirmar = window.confirm("¿Estás seguro de que deseas eliminar este usuario?");
     if (!confirmar) return;
 
-    setDeletingId(idProducto);
-    await eliminarProducto(idProducto);
+    setDeletingId(idUsuario);
+    await eliminarUsuario(idUsuario);
     setDeletingId(null);
     }
 
-    const categorias = React.useMemo(() => {
-        const unique = [...new Set(productos.map((p) => p.categoria))];
-        return unique.map((c) => ({ nombre: c }));
-    }, [productos]);
-
     const filteredItems = React.useMemo(() => {
-        let result = [...productos];
-        if (filterValue) {
-            result = result.filter((p) =>
-                p.nombreProducto.toLowerCase().includes(filterValue.toLowerCase())
-            );
-        }
-        if (categoriaFilter !== "all") {
-            result = result.filter((p) => p.categoria === categoriaFilter);
-        }
-        return result;
-    }, [productos, filterValue, categoriaFilter]);
+    const safeUsuarios = Array.isArray(usuarios) ? usuarios : [];
+
+    let result = [...safeUsuarios];
+
+    if (filterValue) {
+        result = result.filter((u) =>
+            u.nombreUsuario.toLowerCase().includes(filterValue.toLowerCase())
+        );
+    }
+
+    return result;
+}, [usuarios, filterValue]);
 
     const pages = Math.max(1, Math.ceil(filteredItems.length / rowsPerPage));
 
@@ -89,53 +83,54 @@ export function ProductoTable() {
 
     const sortedItems = React.useMemo(() => {
         return [...paginatedItems].sort((a, b) => {
-            const first  = a[sortDescriptor.column as keyof Producto];
-            const second = b[sortDescriptor.column as keyof Producto];
+            const first  = a[sortDescriptor.column as keyof Usuario];
+            const second = b[sortDescriptor.column as keyof Usuario];
             const cmp = first < second ? -1 : first > second ? 1 : 0;
             return sortDescriptor.direction === "descending" ? -cmp : cmp;
         });
     }, [sortDescriptor, paginatedItems]);
 
-    const renderCell = React.useCallback((producto: Producto, columnKey: string) => {
+    const renderCell = React.useCallback((usuario: Usuario, columnKey: string) => {
         switch (columnKey) {
-            case "nombreProducto":
+            case "nombreUsuario":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small">{producto.nombreProducto}</p>
+                        <p className="text-bold text-small">{usuario.nombreUsuario}</p>
                     </div>
                 );
-            case "precioCompraProducto":
+            case "usuario":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-small">{formatCurrency(producto.precioCompraProducto)}</p>
+                        <p className="text-small">{usuario.usuario}</p>
                     </div>
                 );
-            case "precioProducto":
-                return (
-                    <div className="flex flex-col">
-                        <p className="text-small font-semibold text-green-600">
-                            {formatCurrency(producto.precioProducto)}
-                        </p>
-                    </div>
-                );
-            case "stockProducto":
+            case "rol":
                 return (
                     <Chip
                         className="capitalize border-none gap-1 text-default-600"
-                        color={getStockColor(producto.stockProducto)}
+                        color={usuario.rol === 1 ? "primary":"secondary"} 
+                        size="sm"
+                        variant="flat"
+                    >
+                        {usuario.rol === 1 ? "Administrador":"Cajero"} 
+                    </Chip>
+                );
+            case "activo":
+                return (
+                    <Chip
+                        className="capitalize border-none gap-1 text-default-600"
+                        color={usuario.activo ? "success":"danger"}
                         size="sm"
                         variant="dot"
                     >
-                        {producto.stockProducto} Unidades
+                        {usuario.activo ? "Activo":"Inactivo"} 
                     </Chip>
                 );
-            case "fechaVencimientoProducto":
-                return <span className="text-small">{formatDate(producto.fechaVencimientoProducto)}</span>;
-            case "categoria":
+                case "email":
                 return (
-                    <Chip size="sm" variant="flat" className="bg-sky-100 text-sky-600">
-                        {producto.categoria}
-                    </Chip>
+                    <div className="flex flex-col">
+                        <p className="text-small">{usuario.email}</p>
+                    </div>
                 );
             case "acciones":
                 return (
@@ -148,14 +143,14 @@ export function ProductoTable() {
                         <DropdownMenu>
                             <DropdownItem 
                                 key="editar"
-                                onPress={() => handleEditar(producto)}>
+                                onPress={() => handleEditar(usuario)}>
                                 Editar
                             </DropdownItem>
                             <DropdownItem 
                                 key="eliminar" 
                                 className="text-danger" 
                                 color="danger"
-                                onPress={() => handleEliminar(producto.idProducto)}
+                                onPress={() => handleEliminar(usuario.idUsuario)}
                                 >
                                 Eliminar
                             </DropdownItem>
@@ -163,9 +158,9 @@ export function ProductoTable() {
                     </Dropdown>
                 );
             default:
-                return <span>{String(producto[columnKey as keyof Producto])}</span>;
+                return <span>{String(usuario[columnKey as keyof Usuario])}</span>;
         }
-    }, [deletingId, handleEditar, eliminarProducto, refetch]);
+    }, [refetch]);
 
     const topContent = React.useMemo(() => (
         <div className="flex flex-col gap-4">
@@ -173,7 +168,7 @@ export function ProductoTable() {
                 <Input
                     isClearable
                     classNames={{ base: "w-full sm:max-w-[44%]", inputWrapper: "border-1" }}
-                    placeholder="Buscar producto..."
+                    placeholder="Buscar usuario..."
                     size="sm"
                     startContent={<Search size={16} className="text-default-300" />}
                     value={filterValue}
@@ -182,28 +177,6 @@ export function ProductoTable() {
                     onValueChange={(v) => { setFilterValue(v); setPage(1); }}
                 />
                 <div className="flex gap-3">
-                    <Dropdown>
-                        <DropdownTrigger className="hidden sm:flex">
-                            <Button
-                                endContent={<ChevronDown size={16} className="text-small" />}
-                                size="sm"
-                                variant="flat"
-                            >
-                                {categoriaFilter === "all" ? "Categoría" : categoriaFilter}
-                            </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu
-                            aria-label="Filtro categoría"
-                            onAction={(key) => { setCategoriaFilter(key as string); setPage(1); }}
-                        >
-                            {[
-                                <DropdownItem key="all">Todas</DropdownItem>,
-                                ...categorias.map((c) => (
-                                    <DropdownItem key={c.nombre}>{c.nombre}</DropdownItem>
-                                ))
-                            ]}
-                        </DropdownMenu>
-                    </Dropdown>
 
                     <Button
                         className="bg-sky-400 text-white"
@@ -218,7 +191,7 @@ export function ProductoTable() {
 
             <div className="flex justify-between items-center">
                 <span className="text-default-400 text-small">
-                    Total: {filteredItems.length} productos
+                    Total: {filteredItems.length} usuario
                 </span>
                 <label className="flex items-center text-default-400 text-small">
                     Filas por página:
@@ -233,7 +206,7 @@ export function ProductoTable() {
                 </label>
             </div>
         </div>
-    ), [filterValue, categoriaFilter, categorias, filteredItems.length]);
+    ), [filterValue, filteredItems.length]);
 
     const bottomContent = React.useMemo(() => (
         <div className="py-2 px-2 flex justify-between items-center">
@@ -270,10 +243,10 @@ export function ProductoTable() {
 
     return (
         <div className="p-4">
-            <h2 className="text-xl font-bold text-sky-500 mb-4">Productos</h2>
+            <h2 className="text-xl font-bold text-sky-500 mb-4">Usuarios</h2>
             <Table
                 isHeaderSticky
-                aria-label="Tabla de productos"
+                aria-label="Tabla de usuarios"
                 bottomContent={bottomContent}
                 bottomContentPlacement="outside"
                 classNames={{
@@ -310,35 +283,38 @@ export function ProductoTable() {
                     items={sortedItems}
                     isLoading={isLoading}
                     loadingContent={<Spinner color="primary" />}
-                    emptyContent="No se encontraron productos"
+                    emptyContent="No se encontraron usuarios"
                 >
-                    {(producto) => (
-                        <TableRow key={producto.idProducto}>
+                    {(usuario) => (
+                        <TableRow key={usuario.idUsuario}>
                             {(columnKey) => (
-                                <TableCell>{renderCell(producto, columnKey as string)}</TableCell>
+                                <TableCell>{renderCell(usuario, columnKey as string)}</TableCell>
                             )}
                         </TableRow>
                     )}
                 </TableBody>
             </Table>
-            <NuevoProductoModal
+            
+            { 
+                <NuevoUsuarioModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSuccess={refetch}
-            />
+                /> 
+            }
 
-            {productoSeleccionado && (
-                <EditarProductoModal
+            {usuarioSeleccionado && (
+                <EditarUsuarioModal
                     isOpen={isEditModalOpen}
                     onClose={() => {
                         setIsEditModalOpen(false);
-                        setProductoSeleccionado(null);
+                        setUsuarioSeleccionado(null);
                     }}
                     onSuccess={refetch}
-                    producto={productoSeleccionado}
-                    onEditar={editarProducto}
+                    usuarios={usuarioSeleccionado}
+                    onEditar={editarUsuario}
                 />
-            )}
+            )} 
         </div>
     );
 }
